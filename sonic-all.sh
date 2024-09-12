@@ -62,9 +62,9 @@ else
     echo -e "${RED}개인키 파일 생성에 실패했습니다.${NC}"
 fi
 
-# Node.js 스크립트 실행
-echo -e "${GREEN}Node.js 스크립트를 실행합니다...${NC}"
-node --no-deprecation index.js
+# sonic.js 스크립트 실행
+echo -e "${GREEN}sonic.js 스크립트를 실행합니다...${NC}"
+node --no-deprecation sonic.js
 
 echo -e "${GREEN}모든 작업이 완료되었습니다. 컨트롤+A+D로 스크린을 종료해주세요.${NC}"
 echo -e "${GREEN}스크립트 작성자: https://t.me/kjkresearch${NC}"
