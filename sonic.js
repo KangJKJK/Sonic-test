@@ -242,9 +242,45 @@ const dailyMilestone = (auth, stage) => new Promise(async (resolve) => {
         } catch (e) {}
     }
 });
+
+// 미스테리박스를 개봉하는 함수
 const openBox = (keyPair, auth) => new Promise(async (resolve) => {
+    let success = false;
+    while (!success) {
+        try {
+            const data = await fetch(`https://odyssey-api.sonic.game/user/rewards/mystery-box/build-tx`, {
+                headers: {
+                    ...defaultHeaders,
+                    'authorization': auth
+                }
+            }).then(res => res.json());
+
+            if (data.data) {
+                const transactionBuffer = Buffer.from(data.data.hash, "base64");
+                const transaction = sol.Transaction.from(transactionBuffer);
+                transaction.partialSign(keyPair);
+                const signature = await sendTransaction(transaction, keyPair);
+                const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
+                    method: 'POST',
+                    headers: {
+                        ...defaultHeaders,
+                        'authorization': auth
+                    },
+                    body: JSON.stringify({
+                        'hash': signature
+                    })
+                }).then(res => res.json());
+
+                if (open.data) {
+                    success = true;
+                    resolve(open.data.amount);
+                }
+            }
+        } catch (e) {}
+    }
 });
 
+// 사용자토큰을 얻는 함수
 const getUserInfo = (auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
