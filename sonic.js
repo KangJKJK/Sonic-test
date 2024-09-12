@@ -287,7 +287,7 @@ function extractAddressParts(address) {
         {
             type: 'confirm',
             name: 'claim',
-            message: 'Faucet을 클레임하시겠습니까? (2captcha 키 필요)',
+            message: 'Faucet을 받으시겠습니까? (2captcha 키 필요)',
         },
         {
             type: 'confirm',
