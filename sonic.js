@@ -292,7 +292,7 @@ function extractAddressParts(address) {
         {
             type: 'confirm',
             name: 'openBox',
-            message: '미스터리 박스 자동 개봉?',
+            message: '미스터리 박스를 개봉하시겠습니까?',
         },
         {
             type: 'number',
