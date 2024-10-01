@@ -47,10 +47,10 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
     try {
         transaction.partialSign(keyPair);
         const rawTransaction = transaction.serialize();
-        const signature = await connection.sendAndConfirmTransaction(connection, transaction, [keyPair]);
-        await connection.confirmTransaction(signature);
+        const signature = await connection.sendAndConfirmTransaction(transaction, [keyPair]);
         resolve(signature);
     } catch (error) {
+        console.error("Transaction error:", error);
         resolve(error);
     }
 });
