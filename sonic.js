@@ -249,7 +249,7 @@ const dailyMilestone = (auth, stage) => new Promise(async (resolve) => {
     }
 });
 
-// 미스테리박스를 개봉하는 함수
+// 미스터리박스를 개봉하는 함수
 const openBox = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
@@ -264,6 +264,9 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
             if (data.data) {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
+                // 트랜잭션 주체 설정 (feePayer 설정 추가)
+                transaction.feePayer = keyPair.publicKey;
+                // 개인 키로 서명
                 transaction.partialSign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
                 const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
