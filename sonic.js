@@ -42,20 +42,6 @@ function getKeypairFromPrivateKey(privateKey) {
     return sol.Keypair.fromSecretKey(decoded);
 }
 
-// 트랜잭션을 전송하는 함수
-const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) => {
-    try {
-        transaction.partialSign(keyPair);
-        const rawTransaction = transaction.serialize();
-        const signature = await connection.sendRawTransaction(rawTransaction);
-        await connection.confirmTransaction(signature);
-        // const hash = await sol.sendAndConfirmTransaction(connection, transaction, [keyPair]);
-        resolve(signature);
-    } catch (error) {
-        resolve(error);
-    }
-});
-
 // 지연 시간 함수
 const delay = () => {
     // 1~4초 사이의 랜덤 값 생성
@@ -64,6 +50,24 @@ const delay = () => {
         return setTimeout(resolve, randomSeconds * 1000);
     });
 }
+
+// 트랜잭션을 전송하는 함수
+const sendTransaction = async (transaction, keyPair) => {
+    // 1~3초 사이의 지연 시간 추가
+    await delay();
+    return new Promise(async (resolve) => {
+        try {
+            transaction.partialSign(keyPair);
+            const rawTransaction = transaction.serialize();
+            const signature = await connection.sendRawTransaction(rawTransaction);
+            await connection.confirmTransaction(signature);
+            // const hash = await sol.sendAndConfirmTransaction(connection, transaction, [keyPair]);
+            resolve(signature);
+        } catch (error) {
+            resolve(error);
+        }
+    });
+};
 
 // 2captcha Turnstile 토큰을 받는 함수
 const twocaptcha_turnstile = (sitekey, pageurl) => new Promise(async (resolve) => {
