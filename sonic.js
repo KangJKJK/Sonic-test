@@ -401,7 +401,7 @@ for (const [i, address] of randomAddresses.entries()) {
             sol.SystemProgram.transfer({
                 fromPubkey: keypairs[index].publicKey,
                 toPubkey: toPublicKey,
-                lamports: amountToSend * sol.LAMPORTS_PER_SOL,
+                lamports: sol.LAMPORTS_PER_SOL * 0.001,
             })
         );
 
