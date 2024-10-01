@@ -401,6 +401,7 @@ for (const [i, address] of randomAddresses.entries()) {
         // 최근 블록 해시를 가져와서 트랜잭션에 설정
         const { blockhash } = await connection.getLatestBlockhash();
         transaction.recentBlockhash = blockhash; // recentBlockhash 설정
+        transaction.feePayer = keypairs[index].publicKey; // feePayer 설정
 
         await sendTransaction(transaction, keypairs[index]);
 
