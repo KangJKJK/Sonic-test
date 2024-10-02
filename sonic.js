@@ -49,7 +49,7 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
         const recentBlockhash = await connection.getRecentBlockhash(); // recentBlockhash 가져오기
         transaction.recentBlockhash = recentBlockhash.blockhash; // recentBlockhash 설정
 
-        transaction.partialSign(keyPair);
+        transaction.sign(keyPair); // 트랜잭션 서명
         const rawTransaction = transaction.serialize();
 
         const signature = await connection.sendRawTransaction(rawTransaction); // sendRawTransaction 사용
@@ -267,7 +267,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                 // 트랜잭션 주체 설정 (feePayer 설정 추가)
                 transaction.feePayer = keyPair.publicKey;
                 // 개인 키로 서명
-                transaction.partialSign(keyPair);
+                transaction.sign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
                 const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
                     method: 'POST',
@@ -288,7 +288,6 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
         } catch (e) {}
     }
 });
-
 // 사용자토큰을 얻는 함수
 const getUserInfo = (auth) => new Promise(async (resolve) => {
     let success = false;
