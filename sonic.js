@@ -268,14 +268,21 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
             if (data.data) {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
+                
                 // 트랜잭션 주체 설정 (feePayer 설정 추가)
                 transaction.feePayer = keyPair.publicKey;
-                // 개인 키로 서명
+
+                // 트랜잭션 서명
                 console.log("Signing transaction for openBox with keyPair:", keyPair.publicKey.toBase58());
                 transaction.sign(keyPair);
 
                 // 서명된 트랜잭션 확인
                 console.log("Transaction signatures for openBox:", transaction.signatures);
+
+                // 서명된 트랜잭션이 올바른지 확인
+                if (!transaction.signatures.some(sig => sig.publicKey.equals(keyPair.publicKey))) {
+                    throw new Error(`Missing signature for public key [${keyPair.publicKey.toBase58()}].`);
+                }
 
                 const signature = await sendTransaction(transaction, keyPair);
                 const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
@@ -299,6 +306,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
         }
     }
 });
+
 // 사용자토큰을 얻는 함수
 const getUserInfo = (auth) => new Promise(async (resolve) => {
     let success = false;
