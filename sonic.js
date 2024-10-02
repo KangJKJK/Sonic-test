@@ -49,6 +49,7 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
         const recentBlockhash = await connection.getRecentBlockhash(); // recentBlockhash 가져오기
         transaction.recentBlockhash = recentBlockhash.blockhash; // recentBlockhash 설정
 
+        console.log("Signing transaction with keyPair:", keyPair.publicKey.toBase58());
         transaction.sign(keyPair); // 트랜잭션 서명
         const rawTransaction = transaction.serialize();
 
@@ -60,7 +61,6 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
         resolve(error);
     }
 });
-
 
 // 지연 시간 함수
 const delay = () => {
@@ -267,6 +267,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                 // 트랜잭션 주체 설정 (feePayer 설정 추가)
                 transaction.feePayer = keyPair.publicKey;
                 // 개인 키로 서명
+                console.log("Signing transaction for openBox with keyPair:", keyPair.publicKey.toBase58());
                 transaction.sign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
                 const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
@@ -285,9 +286,12 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                     resolve(open.data.amount);
                 }
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error("Error in openBox:", e);
+        }
     }
 });
+
 // 사용자토큰을 얻는 함수
 const getUserInfo = (auth) => new Promise(async (resolve) => {
     let success = false;
