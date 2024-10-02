@@ -55,6 +55,11 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
         // 서명된 트랜잭션 확인
         console.log("Transaction signatures:", transaction.signatures);
 
+        // 서명된 트랜잭션이 올바른지 확인
+        if (!transaction.signatures.some(sig => sig.publicKey.equals(keyPair.publicKey))) {
+            throw new Error(`Missing signature for public key [${keyPair.publicKey.toBase58()}].`);
+        }
+
         const rawTransaction = transaction.serialize();
 
         const signature = await connection.sendRawTransaction(rawTransaction); // sendRawTransaction 사용
@@ -274,7 +279,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
 
                 // 트랜잭션 서명
                 console.log("Signing transaction for openBox with keyPair:", keyPair.publicKey.toBase58());
-                transaction.sign(keyPair);
+                transaction.partialSign(keyPair);
 
                 // 서명된 트랜잭션 확인
                 console.log("Transaction signatures for openBox:", transaction.signatures);
@@ -284,22 +289,11 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                     throw new Error(`Missing signature for public key [${keyPair.publicKey.toBase58()}].`);
                 }
 
-                const signature = await sendTransaction(transaction, keyPair);
-                const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
-                    method: 'POST',
-                    headers: {
-                        ...defaultHeaders,
-                        'authorization': auth
-                    },
-                    body: JSON.stringify({
-                        'hash': signature
-                    })
-                }).then(res => res.json());
+                const rawTransaction = transaction.serialize();
 
-                if (open.data) {
-                    success = true;
-                    resolve(open.data.amount);
-                }
+                const signature = await connection.sendRawTransaction(rawTransaction); // sendRawTransaction 사용
+                await connection.confirmTransaction(signature); // 트랜잭션 확인
+                resolve(signature);
             }
         } catch (e) {
             console.error("Error in openBox:", e);
