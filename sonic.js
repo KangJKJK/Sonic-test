@@ -30,9 +30,9 @@ let defaultHeaders = {
 function generateRandomAddresses(count) {
     const addresses = [];
     for (let i = 0; i < count; i++) {
-    const keypair = sol.Keypair.generate();
-    addresses.push(keypair.publicKey.toString());
-    }
+        const keypair = sol.Keypair.generate();
+        addresses.push(keypair.publicKey.toString());
+        }
     return addresses;
 }
 
@@ -49,16 +49,7 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
         const recentBlockhash = await connection.getRecentBlockhash(); // recentBlockhash 가져오기
         transaction.recentBlockhash = recentBlockhash.blockhash; // recentBlockhash 설정
 
-        console.log("Signing transaction with keyPair:", keyPair.publicKey.toBase58());
         transaction.sign(keyPair); // 트랜잭션 서명
-
-        // 서명된 트랜잭션 확인
-        console.log("Transaction signatures:", transaction.signatures);
-
-        // 서명된 트랜잭션이 올바른지 확인
-        if (!transaction.signatures.some(sig => sig.publicKey.equals(keyPair.publicKey))) {
-            throw new Error(`Missing signature for public key [${keyPair.publicKey.toBase58()}].`);
-        }
 
         const rawTransaction = transaction.serialize();
 
@@ -66,7 +57,6 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
         await connection.confirmTransaction(signature); // 트랜잭션 확인
         resolve(signature);
     } catch (error) {
-        console.error("Transaction error:", error);
         resolve(error);
     }
 });
@@ -278,26 +268,25 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                 transaction.feePayer = keyPair.publicKey;
 
                 // 트랜잭션 서명
-                console.log("Signing transaction for openBox with keyPair:", keyPair.publicKey.toBase58());
                 transaction.partialSign(keyPair);
-
-                // 서명된 트랜잭션 확인
-                console.log("Transaction signatures for openBox:", transaction.signatures);
-
-                // 서명된 트랜잭션이 올바른지 확인
-                if (!transaction.signatures.some(sig => sig.publicKey.equals(keyPair.publicKey))) {
-                    throw new Error(`Missing signature for public key [${keyPair.publicKey.toBase58()}].`);
-                }
-
-                const rawTransaction = transaction.serialize();
-
                 const signature = await connection.sendRawTransaction(rawTransaction); // sendRawTransaction 사용
-                await connection.confirmTransaction(signature); // 트랜잭션 확인
-                resolve(signature);
+                const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
+                    method: 'POST',
+                    headers: {
+                        ...defaultHeaders,
+                        'authorization': auth
+                    },
+                    body: JSON.stringify({
+                        'hash': signature
+                    })
+                }).then(res => res.json());
+
+                if (open.data) {
+                    success = true;
+                    resolve(open.data.amount);
+                }
             }
-        } catch (e) {
-            console.error("Error in openBox:", e);
-        }
+        } catch (e) {}
     }
 });
 
@@ -519,7 +508,7 @@ token = await getLoginToken(keypairs[index]);
             info = await getUserInfo(token);
             msg = `포인트 ${(info.ring - initialInfo.ring)}를 얻었습니다.\n현재 ${info.ring} 포인트와 ${info.ring_monitor} 미스터리 박스가 있습니다.`;
         }
-               
+
         // 포인트 및 미스터리 박스 카운트
         twisters.put(`${publicKey}`, { 
             active: false,
