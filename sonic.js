@@ -64,12 +64,12 @@ const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) =>
 
 // 지연 시간 함수
 const delay = () => {
-    // 1~4초 사이의 랜덤 값 생성
-    const randomSeconds = Math.floor(Math.random() * 4) + 1;
+    // 1~2.5초 사이의 랜덤 값 생성
+    const randomSeconds = Math.random() * 1.5 + 1; // 1에서 2.5 사이의 랜덤 값 생성
     return new Promise((resolve) => {
         return setTimeout(resolve, randomSeconds * 1000);
     });
-}
+};
 
 // 2captcha Turnstile 토큰을 받는 함수
 const twocaptcha_turnstile = (sitekey, pageurl) => new Promise(async (resolve) => {
