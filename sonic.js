@@ -290,10 +290,12 @@ const openBox = (keyPair, auth) => new Promise(async (resolve, reject) => {
                     success = true;
                     resolve(open.data.amount);
                 } else {
-                    throw new Error('Failed to open mystery box');
+                    console.error('Failed to open mystery box');
+                    reject(new Error('Failed to open mystery box'));
                 }
             } else {
-                throw new Error('No data received from build transaction');
+                console.error('No data received from build transaction');
+                reject(new Error('No data received from build transaction'));
             }
         } catch (e) {
             console.error(`Error in openBox: ${e.message}`);
@@ -388,6 +390,34 @@ function extractAddressParts(address) {
 미스터리 박스 : ${info.ring_monitor}
 상태          : -`
         });
+
+        if (q.openBox) {
+            const totalBox = info.ring_monitor;
+            twisters.put(`${publicKey}`, { 
+                text: `=== ACCOUNT ${(index + 1)} ===
+주소          : ${publicKey}
+포인트        : ${info.ring}
+미스터리 박스 : ${info.ring_monitor}
+상태          : ${totalBox}개의 미스터리 박스를 열 준비 중...`
+            });
+
+            for (let i = 0; i < totalBox; i++) {
+                const openedBox = await openBox(keypairs[index], token);
+                info = await getUserInfo(token);
+                twisters.put(`${publicKey}`, { 
+                    text: ` === ACCOUNT ${(index + 1)} ===
+주소          : ${publicKey}
+포인트        : ${info.ring}
+미스터리 박스 : ${info.ring_monitor}
+상태          : [${(i + 1)}/${totalBox}] ${openedBox} 포인트를 얻었습니다!`
+                });
+                await delay(delayBetweenRequests);
+            }
+
+            info = await getUserInfo(token);
+            msg = `포인트 ${(info.ring - initialInfo.ring)}를 얻었습니다.\n현재 ${info.ring} 포인트와 ${info.ring_monitor} 미스터리 박스가 있습니다.`;
+        }
+
     
         // Faucet 클레임
         if (q.claim) {
