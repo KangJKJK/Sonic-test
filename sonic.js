@@ -248,7 +248,7 @@ const dailyMilestone = (auth, stage) => new Promise(async (resolve) => {
     }
 });
 
-const openBox = (keyPair, auth) => new Promise(async (resolve, reject) => {
+const openBox = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
@@ -262,19 +262,9 @@ const openBox = (keyPair, auth) => new Promise(async (resolve, reject) => {
             if (data.data) {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
-                
                 transaction.feePayer = keyPair.publicKey;
                 transaction.partialSign(keyPair);
-                const rawTransaction = transaction.serialize();
-                const signature = await connection.sendRawTransaction(rawTransaction);
-
-                try {
-                    await connection.confirmTransaction(signature);
-                } catch (error) {
-                    console.error(`Transaction confirmation error: ${error.message}`);
-                    // 트랜잭션 확인 실패 시 로그를 출력하고 계속 진행
-                }
-
+                const signature = await sendTransaction(transaction, keyPair);
                 const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
                     method: 'POST',
                     headers: {
@@ -290,17 +280,10 @@ const openBox = (keyPair, auth) => new Promise(async (resolve, reject) => {
                     success = true;
                     resolve(open.data.amount);
                 } else {
-                    console.error('Failed to open mystery box');
-                    reject(new Error('Failed to open mystery box'));
+                    throw new Error('Failed to open mystery box');
                 }
-            } else {
-                console.error('No data received from build transaction');
-                reject(new Error('No data received from build transaction'));
             }
-        } catch (e) {
-            console.error(`Error in openBox: ${e.message}`);
-            reject(e); // 오류 발생 시 reject 호출
-        }
+        } catch (e) {}
     }
 });
 
