@@ -46,13 +46,8 @@ function getKeypairFromPrivateKey(privateKey) {
 const sendTransaction = (transaction, keyPair) => new Promise(async (resolve) => {
     try {
         transaction.feePayer = keyPair.publicKey; // 수수료 지불자 설정
-        const recentBlockhash = await connection.getRecentBlockhash(); // recentBlockhash 가져오기
-        transaction.recentBlockhash = recentBlockhash.blockhash; // recentBlockhash 설정
-
         transaction.sign(keyPair); // 트랜잭션 서명
-
         const rawTransaction = transaction.serialize();
-
         const signature = await connection.sendRawTransaction(rawTransaction); // sendRawTransaction 사용
         await connection.confirmTransaction(signature); // 트랜잭션 확인
         resolve(signature);
