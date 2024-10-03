@@ -334,6 +334,11 @@ function extractAddressParts(address) {
         },
         {
             type: 'confirm',
+            name: 'autoTx',
+            message: '데일리 트랜잭션을 진행하시겠습니까?',
+        },
+        {
+            type: 'confirm',
             name: 'openBox',
             message: '미스터리 박스를 개봉하시겠습니까?',
         },
@@ -373,35 +378,7 @@ function extractAddressParts(address) {
 미스터리 박스 : ${info.ring_monitor}
 상태          : -`
         });
-
-        if (q.openBox) {
-            const totalBox = info.ring_monitor;
-            twisters.put(`${publicKey}`, { 
-                text: `=== ACCOUNT ${(index + 1)} ===
-주소          : ${publicKey}
-포인트        : ${info.ring}
-미스터리 박스 : ${info.ring_monitor}
-상태          : ${totalBox}개의 미스터리 박스를 열 준비 중...`
-            });
-
-            for (let i = 0; i < totalBox; i++) {
-                const openedBox = await openBox(keypairs[index], token);
-                info = await getUserInfo(token);
-                twisters.put(`${publicKey}`, { 
-                    text: ` === ACCOUNT ${(index + 1)} ===
-주소          : ${publicKey}
-포인트        : ${info.ring}
-미스터리 박스 : ${info.ring_monitor}
-상태          : [${(i + 1)}/${totalBox}] ${openedBox} 포인트를 얻었습니다!`
-                });
-                await delay(delayBetweenRequests);
-            }
-
-            info = await getUserInfo(token);
-            msg = `포인트 ${(info.ring - initialInfo.ring)}를 얻었습니다.\n현재 ${info.ring} 포인트와 ${info.ring_monitor} 미스터리 박스가 있습니다.`;
-        }
-
-    
+        
         // Faucet 클레임
         if (q.claim) {
             twisters.put(`${publicKey}`, { 
@@ -422,24 +399,25 @@ function extractAddressParts(address) {
             await delay(delayBetweenRequests);
         }
     
-// 트랜잭션 발생
-for (const [i, address] of randomAddresses.entries()) {
-    try {
-        const toPublicKey = new sol.PublicKey(address);
-        const transaction = new sol.Transaction().add(
-            sol.SystemProgram.transfer({
-                fromPubkey: keypairs[index].publicKey,
-                toPubkey: toPublicKey,
-                lamports: sol.LAMPORTS_PER_SOL * amountToSend,
-            })
-        );
-
-        // 최근 블록 해시를 가져와서 트랜잭션에 설정
-        const { blockhash } = await connection.getLatestBlockhash();
-        transaction.recentBlockhash = blockhash; // recentBlockhash 설정
-        transaction.feePayer = keypairs[index].publicKey; // feePayer 설정
-
-        await sendTransaction(transaction, keypairs[index]);
+        // 트랜잭션 발생
+        if (q.autoTX) {
+            for (const [i, address] of randomAddresses.entries()) {
+                try {
+                    const toPublicKey = new sol.PublicKey(address);
+                    const transaction = new sol.Transaction().add(
+                        sol.SystemProgram.transfer({
+                            fromPubkey: keypairs[index].publicKey,
+                            toPubkey: toPublicKey,
+                            lamports: sol.LAMPORTS_PER_SOL * amountToSend,
+                        })
+                    );
+            
+                    // 최근 블록 해시를 가져와서 트랜잭션에 설정
+                    const { blockhash } = await connection.getLatestBlockhash();
+                    transaction.recentBlockhash = blockhash; // recentBlockhash 설정
+                    transaction.feePayer = keypairs[index].publicKey; // feePayer 설정
+            
+                    await sendTransaction(transaction, keypairs[index]);
 
         twisters.put(`${publicKey}`, { 
             text: ` === ACCOUNT ${(index + 1)} ===
@@ -447,11 +425,11 @@ for (const [i, address] of randomAddresses.entries()) {
 포인트        : ${info.ring}
 미스터리 박스 : ${info.ring_monitor}
 상태          : [${(i + 1)}/${randomAddresses.length}] ${amountToSend} SOL을 ${address}로 성공적으로 송금했습니다.`
-        });
+             });
 
-        await delay(delayBetweenRequests);
-    } catch (error) {
-        twisters.put(`${publicKey}`, { 
+            await delay(delayBetweenRequests);
+       } catch (error) {
+            twisters.put(`${publicKey}`, { 
             text: ` === ACCOUNT ${(index + 1)} ===
 주소          : ${publicKey}
 포인트        : ${info.ring}
@@ -459,13 +437,13 @@ for (const [i, address] of randomAddresses.entries()) {
 상태          : [${(i + 1)}/${randomAddresses.length}] ${amountToSend} SOL을 ${address}로 송금하는 데 실패했습니다.`
         });
 
-        await delay(delayBetweenRequests);
-    }
+         await delay(delayBetweenRequests);
+      }
+   }
 }
-
-token = await getLoginToken(keypairs[index]);
-    
+        
         // 체크인 작업
+        token = await getLoginToken(keypairs[index]);
         twisters.put(`${publicKey}`, { 
             text: ` === ACCOUNT ${(index + 1)} ===
 주소          : ${publicKey}
@@ -507,6 +485,7 @@ token = await getLoginToken(keypairs[index]);
         info = await getUserInfo(token);
         let msg = `미스터리 박스 ${(info.ring_monitor - initialInfo.ring_monitor)}개를 얻었습니다.\n현재 ${info.ring} 포인트와 ${info.ring_monitor} 미스터리 박스가 있습니다.`;
 
+        // 미스터리박스 오픈
         if (q.openBox) {
             const totalBox = info.ring_monitor;
             twisters.put(`${publicKey}`, { 
