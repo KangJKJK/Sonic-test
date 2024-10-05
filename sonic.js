@@ -168,15 +168,6 @@ const getLoginToken = (keyPair) => new Promise(async (resolve) => {
 });
 
 //데일리체크인 함수
-async function fetchJson(url, options = {}) {
-    const response = await fetch(url, options);
-    if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'Unknown error');
-    }
-    return response.json();
-}
-
 const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
