@@ -181,47 +181,37 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetchJson(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
+            const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
                 }
-            });
-
-            console.log('체크인 트랜잭션 데이터:', data); // 로그 추가
-
+            }).then(res => res.json());
+            
+            if (data.message == 'current account already checked in') {
+                success = true;
+                resolve('오늘 이미 체크인을 하였습니다!');
+            }
+            
             if (data.data) {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
-                transaction.partialSign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
-
-                const checkin = await fetchJson('https://odyssey-api-beta.sonic.game/user/check-in', {
+                const checkin = await fetch('https://odyssey-api-beta.sonic.game/user/check-in', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
-                        'authorization': `${auth}`,
-                        'content-type': 'application/json'
+                        'authorization': `${auth}`
                     },
                     body: JSON.stringify({
                         'hash': `${signature}`
                     })
-                });
-
-                console.log('체크인 응답:', checkin); // 로그 추가
-
+                }).then(res => res.json());
+                
                 success = true;
                 resolve(`체크인 성공, ${checkin.data.accumulative_days}일째!`);
             }
-        } catch (e) {
-            if (e.message === 'current account already checked in') {
-                console.log(`[ ${moment().format('HH:mm:ss')} ] Error in daily login: ${e.message}`.red);
-                success = true;
-                resolve('오늘 이미 체크인했습니다!');
-            } else {
-                resolve(`체크인 실패: ${e.message}`);
-            }
-        }
+        } catch (e) {}
     }
 });
 
