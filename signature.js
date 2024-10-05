@@ -38,7 +38,7 @@ const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => 
             'origin': 'https://odyssey.sonic.game',
             'priority': 'u=1, i',
             'referer': 'https://odyssey.sonic.game/',
-            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
+            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="129", "Brave";v="129"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'empty',
@@ -46,7 +46,7 @@ const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => 
             'sec-fetch-site': 'same-site',
             'sec-gpc': '1',
             'Authorization': `${auth}`,
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
         }
     }).then(response => response.json());
     if (data.data) {
@@ -62,7 +62,7 @@ const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => 
                 'origin': 'https://odyssey.sonic.game',
                 'priority': 'u=1, i',
                 'referer': 'https://odyssey.sonic.game/',
-                'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
+                'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="129", "Brave";v="129"',
                 'sec-ch-ua-mobile': '?0',
                 'sec-ch-ua-platform': '"Windows"',
                 'sec-fetch-dest': 'empty',
@@ -70,7 +70,7 @@ const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => 
                 'sec-fetch-site': 'same-site',
                 'sec-gpc': '1',
                 'Authorization': `${auth}`,
-                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+                'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
             },
             body: JSON.stringify({
                 'hash': `${signature}`
@@ -96,14 +96,14 @@ const getTokenLogin = (keyPair) => new Promise(async (resolve, reject) => {
             'origin': 'https://odyssey.sonic.game',
             'priority': 'u=1, i',
             'referer': 'https://odyssey.sonic.game/',
-            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
+            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="129", "Brave";v="129"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-site',
             'sec-gpc': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
         }
     }).then(response => response.json());
 
@@ -120,14 +120,14 @@ const getTokenLogin = (keyPair) => new Promise(async (resolve, reject) => {
             'origin': 'https://odyssey.sonic.game',
             'priority': 'u=1, i',
             'referer': 'https://odyssey.sonic.game/',
-            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="126", "Brave";v="126"',
+            'sec-ch-ua': '"Not/A)Brand";v="8", "Chromium";v="129", "Brave";v="129"',
             'sec-ch-ua-mobile': '?0',
             'sec-ch-ua-platform': '"Windows"',
             'sec-fetch-dest': 'empty',
             'sec-fetch-mode': 'cors',
             'sec-fetch-site': 'same-site',
             'sec-gpc': '1',
-            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36'
+            'user-agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/129.0.0.0 Safari/537.36'
         },
         body: JSON.stringify({
             'address': `${publicKey}`,
