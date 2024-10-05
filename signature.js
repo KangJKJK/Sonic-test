@@ -30,7 +30,7 @@ const getSolanaBalance = (fromKeypair) => {
     });
 }
 const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => {
-    const data = await fetch(`https://odyssey-api.sonic.game/user/check-in/transaction`, {
+    const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
         headers: {
             'accept': '*/*',
             'accept-language': 'en-US,en;q=0.6',
@@ -53,7 +53,7 @@ const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => 
         const transactionBuffer = Buffer.from(data.data.hash, "base64");
         const transaction = sol.Transaction.from(transactionBuffer);
         const signature = await Tx(transaction, keyPair);
-        const checkin = await fetch('https://odyssey-api.sonic.game/user/check-in', {
+        const checkin = await fetch('https://odyssey-api-beta.sonic.game/user/check-in', {
             method: 'POST',
             headers: {
                 'accept': '*/*',
@@ -88,7 +88,7 @@ const getDailyLogin = (keyPair, auth) => new Promise(async (resolve, reject) => 
 
 
 const getTokenLogin = (keyPair) => new Promise(async (resolve, reject) => {
-    const message = await fetch(`https://odyssey-api.sonic.game/auth/sonic/challenge?wallet=${keyPair.publicKey}`, {
+    const message = await fetch(`https://odyssey-api-beta.sonic.game/auth/sonic/challenge?wallet=${keyPair.publicKey}`, {
         headers: {
             'accept': '*/*',
             'accept-language': 'en-US,en;q=0.6',
@@ -111,7 +111,7 @@ const getTokenLogin = (keyPair) => new Promise(async (resolve, reject) => {
     const signature = Buffer.from(sign).toString('base64');
     const publicKey = keyPair.publicKey.toBase58();
     const addressEncoded = Buffer.from(keyPair.publicKey.toBytes()).toString("base64")
-    const authorize = await fetch('https://odyssey-api.sonic.game/auth/sonic/authorize', {
+    const authorize = await fetch('https://odyssey-api-beta.sonic.game/auth/sonic/authorize', {
         method: 'POST',
         headers: {
             'accept': '*/*',
