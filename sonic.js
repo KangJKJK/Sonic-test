@@ -17,7 +17,7 @@ let defaultHeaders = {
     'content-type': 'application/json',
     'priority': 'u=1, i',
     'referer': 'https://odyssey.sonic.game'
-    'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
+    'sec-ch-ua': "'Google Chrome';v='129', 'Not=A?Brand';v='8', 'Chromium';v='129'",
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
     'sec-fetch-dest': 'empty',
