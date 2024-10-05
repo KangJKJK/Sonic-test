@@ -142,7 +142,7 @@ const getLoginToken = (keyPair) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const message = await fetch(`https://odyssey-api.sonic.game/auth/sonic/challenge?wallet=${keyPair.publicKey}`, {
+            const message = await fetch(`https://odyssey-api-beta.sonic.game/auth/sonic/challenge?wallet=${keyPair.publicKey}`, {
                 headers: defaultHeaders
             }).then(res => res.json());
         
@@ -150,7 +150,7 @@ const getLoginToken = (keyPair) => new Promise(async (resolve) => {
             const signature = Buffer.from(sign).toString('base64');
             const publicKey = keyPair.publicKey.toBase58();
             const addressEncoded = Buffer.from(keyPair.publicKey.toBytes()).toString("base64")
-            const authorize = await fetch('https://odyssey-api.sonic.game/auth/sonic/authorize', {
+            const authorize = await fetch('https://odyssey-api-beta.sonic.game/auth/sonic/authorize', {
                 method: 'POST',
                 headers: defaultHeaders,
                 body: JSON.stringify({
@@ -172,7 +172,7 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetch(`https://odyssey-api.sonic.game/user/check-in/transaction`, {
+            const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
@@ -188,7 +188,7 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
                 const signature = await sendTransaction(transaction, keyPair);
-                const checkin = await fetch('https://odyssey-api.sonic.game/user/check-in', {
+                const checkin = await fetch('https://odyssey-api-beta.sonic.game/user/check-in', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
@@ -211,7 +211,7 @@ const dailyMilestone = (auth, stage) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            await fetch('https://odyssey-api.sonic.game/user/transactions/state/daily', {
+            await fetch('https://odyssey-api-beta.sonic.game/user/transactions/state/daily', {
                 method: 'GET',
                 headers: {
                     ...defaultHeaders,
@@ -219,7 +219,7 @@ const dailyMilestone = (auth, stage) => new Promise(async (resolve) => {
                 },
             });
 
-            const data = await fetch('https://odyssey-api.sonic.game/user/transactions/rewards/claim', {
+            const data = await fetch('https://odyssey-api-beta.sonic.game/user/transactions/rewards/claim', {
                 method: 'POST',
                 headers: {
                     ...defaultHeaders,
@@ -247,7 +247,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetch(`https://odyssey-api.sonic.game/user/rewards/mystery-box/build-tx`, {
+            const data = await fetch(`https://odyssey-api-beta.sonic.game/user/rewards/mystery-box/build-tx`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': auth
@@ -260,7 +260,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                 transaction.feePayer = keyPair.publicKey;
                 transaction.partialSign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
-                const open = await fetch('https://odyssey-api.sonic.game/user/rewards/mystery-box/open', {
+                const open = await fetch('https://odyssey-api-beta.sonic.game/user/rewards/mystery-box/open', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
@@ -287,7 +287,7 @@ const getUserInfo = (auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetch('https://odyssey-api.sonic.game/user/rewards/info', {
+            const data = await fetch('https://odyssey-api-beta.sonic.game/user/rewards/info', {
                 headers: {
                   ...defaultHeaders,
                   'authorization': `${auth}`,
