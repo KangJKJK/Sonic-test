@@ -172,7 +172,7 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetch(`https://odyssey-api.sonic.game/user/check-in/transaction`, {
+            const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
@@ -190,7 +190,7 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
                 const signature = await sendTransaction(transaction, keyPair);
-                const checkin = await fetch('https://odyssey-api.sonic.game/user/check-in', {
+                const checkin = await fetch('https://odyssey-api-beta.sonic.game/user/check-in/transaction', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
