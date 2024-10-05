@@ -172,13 +172,15 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
+            const data = await fetch(`https://odyssey-api.sonic.game/user/check-in/transaction`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
                 }
             }).then(res => res.json());
             
+            console.log('체크인 트랜잭션 데이터:', data); // 로그 추가
+
             if (data.message == 'current account already checked in') {
                 success = true;
                 resolve('오늘 이미 체크인했습니다!');
@@ -188,7 +190,7 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
                 const signature = await sendTransaction(transaction, keyPair);
-                const checkin = await fetch('https://odyssey-api-beta.sonic.game/user/check-in', {
+                const checkin = await fetch('https://odyssey-api.sonic.game/user/check-in', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
@@ -199,10 +201,15 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
                     })
                 }).then(res => res.json());
                 
+                console.log('체크인 응답:', checkin); // 로그 추가
+
                 success = true;
                 resolve(`체크인 성공, ${checkin.data.accumulative_days}일째!`);
             }
-        } catch (e) {}
+        } catch (e) {
+            console.error('체크인 중 오류 발생:', e); // 오류 로그 추가
+            resolve(`체크인 실패: ${e.message}`);
+        }
     }
 });
 
