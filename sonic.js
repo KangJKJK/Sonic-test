@@ -167,31 +167,27 @@ const getLoginToken = (keyPair) => new Promise(async (resolve) => {
     }
 });
 
+//데일리체크인 함수
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, options);
+    if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Unknown error');
+    }
+    return response.json();
+}
+
 const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const response = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
+            const data = await fetchJson(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
                 }
             });
 
-            if (!response.ok) {
-                const errorData = await response.json();
-                if (errorData.message === 'current account already checked in') {
-                    console.log(`[ ${moment().format('HH:mm:ss')} ] Error in daily login: ${errorData.message}`.red);
-                    success = true;
-                    resolve('오늘 이미 체크인했습니다!');
-                } else {
-                    console.log(`[ ${moment().format('HH:mm:ss')} ] Error claiming: ${errorData.message}`.red);
-                    resolve(`체크인 실패: ${errorData.message}`);
-                }
-                return;
-            }
-
-            const data = await response.json();
             console.log('체크인 트랜잭션 데이터:', data); // 로그 추가
 
             if (data.data) {
@@ -200,33 +196,31 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
                 transaction.partialSign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
 
-                const checkinResponse = await fetch('https://odyssey-api-beta.sonic.game/user/check-in', {
+                const checkin = await fetchJson('https://odyssey-api-beta.sonic.game/user/check-in', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
-                        'authorization': `${auth}`
+                        'authorization': `${auth}`,
+                        'content-type': 'application/json'
                     },
                     body: JSON.stringify({
                         'hash': `${signature}`
                     })
                 });
 
-                if (!checkinResponse.ok) {
-                    const errorData = await checkinResponse.json();
-                    console.log(`[ ${moment().format('HH:mm:ss')} ] Error claiming: ${errorData.message}`.red);
-                    resolve(`체크인 실패: ${errorData.message}`);
-                    return;
-                }
-
-                const checkin = await checkinResponse.json();
                 console.log('체크인 응답:', checkin); // 로그 추가
 
                 success = true;
                 resolve(`체크인 성공, ${checkin.data.accumulative_days}일째!`);
             }
         } catch (e) {
-            console.error('체크인 중 오류 발생:', e); // 오류 로그 추가
-            resolve(`체크인 실패: ${e.message}`);
+            if (e.message === 'current account already checked in') {
+                console.log(`[ ${moment().format('HH:mm:ss')} ] Error in daily login: ${e.message}`.red);
+                success = true;
+                resolve('오늘 이미 체크인했습니다!');
+            } else {
+                resolve(`체크인 실패: ${e.message}`);
+            }
         }
     }
 });
