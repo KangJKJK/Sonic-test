@@ -167,30 +167,40 @@ const getLoginToken = (keyPair) => new Promise(async (resolve) => {
     }
 });
 
-// 매일 체크인하는 함수
 const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
         try {
-            const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
+            const response = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
                 }
-            }).then(res => res.json());
-            
+            });
+
+            if (!response.ok) {
+                const errorData = await response.json();
+                if (errorData.message === 'current account already checked in') {
+                    console.log(`[ ${moment().format('HH:mm:ss')} ] Error in daily login: ${errorData.message}`.red);
+                    success = true;
+                    resolve('오늘 이미 체크인했습니다!');
+                } else {
+                    console.log(`[ ${moment().format('HH:mm:ss')} ] Error claiming: ${errorData.message}`.red);
+                    resolve(`체크인 실패: ${errorData.message}`);
+                }
+                return;
+            }
+
+            const data = await response.json();
             console.log('체크인 트랜잭션 데이터:', data); // 로그 추가
 
-            if (data.message == 'current account already checked in') {
-                success = true;
-                resolve('오늘 이미 체크인했습니다!');
-            }
-            
             if (data.data) {
                 const transactionBuffer = Buffer.from(data.data.hash, "base64");
                 const transaction = sol.Transaction.from(transactionBuffer);
+                transaction.partialSign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
-                const checkin = await fetch('https://odyssey-api-beta.sonic.game/user/check-in/transaction', {
+
+                const checkinResponse = await fetch('https://odyssey-api-beta.sonic.game/user/check-in', {
                     method: 'POST',
                     headers: {
                         ...defaultHeaders,
@@ -199,8 +209,16 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
                     body: JSON.stringify({
                         'hash': `${signature}`
                     })
-                }).then(res => res.json());
-                
+                });
+
+                if (!checkinResponse.ok) {
+                    const errorData = await checkinResponse.json();
+                    console.log(`[ ${moment().format('HH:mm:ss')} ] Error claiming: ${errorData.message}`.red);
+                    resolve(`체크인 실패: ${errorData.message}`);
+                    return;
+                }
+
+                const checkin = await checkinResponse.json();
                 console.log('체크인 응답:', checkin); // 로그 추가
 
                 success = true;
@@ -250,6 +268,7 @@ const dailyMilestone = (auth, stage) => new Promise(async (resolve) => {
     }
 });
 
+//미스터리박스를 오픈하는 함수
 const openBox = (keyPair, auth) => new Promise(async (resolve) => {
     let success = false;
     while (!success) {
@@ -327,7 +346,7 @@ function extractAddressParts(address) {
         throw new Error('private.txt에 적어도 1개의 개인 키를 입력해 주세요.');
     }
     
-    // Faucet 클레임 여부 묻기
+    // 사용자에게 작업종류 물어보기
     const q = await prompts([
         {
             type: 'confirm',
@@ -401,8 +420,8 @@ function extractAddressParts(address) {
             await delay(delayBetweenRequests);
         }
     
-        // 트랜잭션 발생
-        if (q.autoTX) {
+        // 트랜잭션 미션
+        if (q.autoTx) {
             for (const [i, address] of randomAddresses.entries()) {
                 try {
                     const toPublicKey = new sol.PublicKey(address);
