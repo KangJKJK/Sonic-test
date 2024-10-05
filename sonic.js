@@ -16,6 +16,7 @@ let defaultHeaders = {
     'accept-language': 'en-US,en;q=0.7',
     'content-type': 'application/json',
     'priority': 'u=1, i',
+    'referer': 'https://odyssey.sonic.game'
     'sec-ch-ua': '"Google Chrome";v="129", "Not=A?Brand";v="8", "Chromium";v="129"',
     'sec-ch-ua-mobile': '?0',
     'sec-ch-ua-platform': '"Windows"',
@@ -173,6 +174,7 @@ const dailyCheckin = (keyPair, auth) => new Promise(async (resolve) => {
     while (!success) {
         try {
             const data = await fetch(`https://odyssey-api-beta.sonic.game/user/check-in/transaction`, {
+                method: 'GET',
                 headers: {
                     ...defaultHeaders,
                     'authorization': `${auth}`
@@ -262,7 +264,7 @@ const openBox = (keyPair, auth) => new Promise(async (resolve) => {
                 transaction.partialSign(keyPair);
                 const signature = await sendTransaction(transaction, keyPair);
                 const open = await fetch('https://odyssey-api-beta.sonic.game/user/rewards/mystery-box/open', {
-                    method: 'POST',
+                    method: 'GET',
                     headers: {
                         ...defaultHeaders,
                         'authorization': auth
